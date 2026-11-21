@@ -36,6 +36,7 @@ export async function fetchProfile(provider: Provider, code: string, callbackUrl
     : 'https://kauth.kakao.com/oauth/token';
   const tokenResponse = await fetch(tokenUrl, {
     method: 'POST',
+    signal: AbortSignal.timeout(10000),
     headers: { 'content-type': 'application/x-www-form-urlencoded' },
     body: new URLSearchParams({
       grant_type: 'authorization_code', client_id: clientId,
@@ -49,6 +50,7 @@ export async function fetchProfile(provider: Provider, code: string, callbackUrl
   const profileResponse = await fetch(provider === 'google'
     ? 'https://openidconnect.googleapis.com/v1/userinfo'
     : 'https://kapi.kakao.com/v2/user/me', {
+    signal: AbortSignal.timeout(10000),
     headers: { authorization: `Bearer ${token.access_token}` },
   });
   if (!profileResponse.ok) throw new Error(`${provider} profile request failed`);

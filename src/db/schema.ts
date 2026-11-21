@@ -25,6 +25,7 @@ export const sessions = pgTable('sessions', {
 }, (table) => [index('sessions_user_id_idx').on(table.userId)]);
 
 export const loginTickets = pgTable('login_tickets', {
+  challenge: text('challenge').notNull(),
   id: uuid('id').defaultRandom().primaryKey(),
   userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
   tokenHash: text('token_hash').notNull().unique(),

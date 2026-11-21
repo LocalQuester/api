@@ -4,7 +4,7 @@ Fastify + TypeScript API입니다. PostgreSQL/PostGIS 스키마와 인증 이력
 
 ## 로컬 실행
 
-Node.js 22 이상과 PostGIS가 설치된 PostgreSQL 17이 필요합니다. `.env.example`을 `.env`로 복사하고 값을 설정합니다. 실행 전 셸에 환경 변수를 로드해야 합니다.
+Node.js 22.13 이상(22.x) 또는 24 이상과 PostGIS가 설치된 PostgreSQL 17이 필요합니다. `.env.example`을 `.env`로 복사하고 값을 설정합니다. 실행 전 셸에 환경 변수를 로드해야 합니다.
 
 ```bash
 npm ci
@@ -23,7 +23,7 @@ PostGIS 확장은 `drizzle/0000_enable-postgis.sql`에서 활성화합니다. `p
 
 ## 소셜 로그인
 
-`GET /auth/{google|kakao}/start` → 제공자 인증 → `GET /auth/{provider}/callback` → 웹 일회용 티켓 → `POST /auth/exchange` → 세션 토큰 순서입니다. 웹은 토큰을 HTTP 전용 쿠키에 저장하고 API 요청에는 Bearer 토큰으로 전달합니다. 티켓은 1분, 세션은 30일 후 만료됩니다.
+`GET /auth/{google|kakao}/start` → 제공자 인증 → `GET /auth/{provider}/callback` → 웹 일회용 티켓 → `POST /auth/exchange` → 세션 토큰 순서입니다. Next.js 웹 서버가 쿠키를 읽어 API 요청에 Bearer 헤더를 구성합니다. 웹 서버는 토큰을 HTTP 전용 쿠키에 저장하고 API 요청에는 Bearer 토큰으로 전달합니다. 티켓은 1분, 세션은 30일 후 만료됩니다.
 
 필요한 설정: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `KAKAO_CLIENT_ID`, `KAKAO_CLIENT_SECRET`, `PUBLIC_API_URL`, `WEB_ORIGIN`, `DATABASE_URL`. Google과 Kakao 콘솔의 Redirect URI에는 각각 `<PUBLIC_API_URL>/auth/google/callback`, `<PUBLIC_API_URL>/auth/kakao/callback`을 등록합니다. 공급자 키와 외부에서 접속 가능한 API 주소가 없으면 로그인 완료는 불가능합니다.
 

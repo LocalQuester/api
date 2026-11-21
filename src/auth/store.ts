@@ -20,19 +20,19 @@ export async function findOrCreateUser(provider: Provider, profile: Profile) {
   });
 }
 
-export async function createLoginTicket(userId: string) {
+export async function createLoginTicket(userId: string, challenge: string) {
   const token = randomToken();
   await getDb().insert(loginTickets).values({
-    userId, tokenHash: hashToken(token), expiresAt: new Date(Date.now() + 60_000),
+    userId, challenge, tokenHash: hashToken(token), expiresAt: new Date(Date.now() + 60_000),
   });
   return token;
 }
 
-export async function exchangeLoginTicket(ticket: string) {
+export async function exchangeLoginTicket(ticket: string, verifier: string) {
   const db = getDb();
   return db.transaction(async (tx) => {
     const consumed = await tx.delete(loginTickets)
-      .where(and(eq(loginTickets.tokenHash, hashToken(ticket)), gt(loginTickets.expiresAt, new Date())))
+      .where(and(eq(loginTickets.tokenHash, hashToken(ticket)), eq(loginTickets.challenge, hashToken(verifier)), gt(loginTickets.expiresAt, new Date())))
       .returning({ userId: loginTickets.userId });
     if (!consumed[0]) return null;
     const token = randomToken();

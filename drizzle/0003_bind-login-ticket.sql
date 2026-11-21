@@ -1,0 +1,1 @@
+ALTER TABLE "login_tickets" ADD COLUMN "challenge" text NOT NULL;

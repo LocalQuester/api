@@ -8,14 +8,14 @@ test('OAuth start sets a state cookie and redirects to the selected provider', a
   process.env.GOOGLE_CLIENT_ID = 'test-client';
   process.env.GOOGLE_CLIENT_SECRET = 'test-secret';
   const app = buildApp();
-  const response = await app.inject('/auth/google/start');
+  const response = await app.inject('/auth/google/start?challenge=' + 'a'.repeat(64));
   assert.equal(response.statusCode, 302);
   const target = new URL(response.headers.location as string);
   assert.equal(target.origin, 'https://accounts.google.com');
   assert.equal(target.searchParams.get('client_id'), 'test-client');
   assert.equal(target.searchParams.get('redirect_uri'), 'http://localhost:8080/auth/google/callback');
   assert.ok(target.searchParams.get('state'));
-  assert.match(response.headers['set-cookie'] as string, /lq_oauth_state=/);
+  assert.match(String(response.headers['set-cookie']), /lq_oauth_state=/);
 
   const callback = await app.inject({
     method: 'GET', url: '/auth/google/callback?code=unused&state=invalid',

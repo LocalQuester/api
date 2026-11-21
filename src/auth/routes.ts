@@ -15,9 +15,12 @@ function bearer(header: string | undefined) {
 }
 
 export async function authRoutes(app: FastifyInstance) {
-  app.get<{ Params: { provider: string } }>('/auth/:provider/start', async (request, reply) => {
+  app.get<{ Params: { provider: string }; Querystring: { challenge?: string } }>('/auth/:provider/start', async (request, reply) => {
     if (!isProvider(request.params.provider)) return reply.code(404).send({ error: 'unknown_provider' });
     const { api } = config();
+    const challenge = request.query.challenge;
+    if (typeof challenge !== 'string' || !/^[a-f0-9]{64}$/.test(challenge)) return reply.code(400).send({ error: 'invalid_challenge' });
+    reply.setCookie('lq_oauth_challenge', challenge, { httpOnly: true, secure: api.startsWith('https:'), sameSite: 'lax', path: '/auth', maxAge: 600 });
     const state = randomBytes(32).toString('base64url');
     reply.setCookie('lq_oauth_state', state, {
       httpOnly: true, secure: api.startsWith('https:'), sameSite: 'lax', path: '/auth', maxAge: 600,
@@ -31,28 +34,32 @@ export async function authRoutes(app: FastifyInstance) {
       const { api, web } = config();
       const { code, state, error } = request.query;
       const expected = request.cookies.lq_oauth_state;
+      const challenge = request.cookies.lq_oauth_challenge;
       reply.clearCookie('lq_oauth_state', { path: '/auth' });
+      reply.clearCookie('lq_oauth_challenge', { path: '/auth' });
       if (error) return reply.redirect(`${web}/login?error=provider`);
-      if (!code || !state || !expected || state.length !== expected.length ||
+      if (typeof code !== 'string' || typeof state !== 'string' || !expected || !challenge || Buffer.byteLength(state) !== Buffer.byteLength(expected) ||
           !timingSafeEqual(Buffer.from(state), Buffer.from(expected))) {
         return reply.code(400).send({ error: 'invalid_oauth_state' });
       }
       try {
         const profile = await fetchProfile(request.params.provider, code, `${api}/auth/${request.params.provider}/callback`);
         const userId = await findOrCreateUser(request.params.provider, profile);
-        const ticket = await createLoginTicket(userId);
+        const ticket = await createLoginTicket(userId, challenge);
         return reply.redirect(`${web}/api/auth/callback?ticket=${encodeURIComponent(ticket)}`);
       } catch (cause) {
-        request.log.error({ cause }, 'OAuth callback failed');
+        request.log.error({ err: cause }, 'OAuth callback failed');
         return reply.redirect(`${web}/login?error=login`);
       }
     },
   );
 
-  app.post<{ Body: { ticket?: string } }>('/auth/exchange', async (request, reply) => {
+  app.post<{ Body: { ticket?: string; verifier?: string } }>('/auth/exchange', async (request, reply) => {
     const ticket = request.body?.ticket;
     if (typeof ticket !== 'string' || ticket.length > 128) return reply.code(400).send({ error: 'invalid_ticket' });
-    const session = await exchangeLoginTicket(ticket);
+    const verifier = request.body?.verifier;
+    if (typeof verifier !== 'string' || !/^[A-Za-z0-9_-]{43}$/.test(verifier)) return reply.code(400).send({ error: 'invalid_verifier' });
+    const session = await exchangeLoginTicket(ticket, verifier);
     if (!session) return reply.code(401).send({ error: 'expired_ticket' });
     return session;
   });

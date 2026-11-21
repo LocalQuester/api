@@ -22,6 +22,13 @@
       "when": 1795256933190,
       "tag": "0002_login-tickets",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1795273089882,
+      "tag": "0003_bind-login-ticket",
+      "breakpoints": true
     }
   ]
 }
