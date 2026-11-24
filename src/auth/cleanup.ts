@@ -1,10 +1,12 @@
-import { lte } from 'drizzle-orm';
+import { lte, sql } from 'drizzle-orm';
 import { getDb } from '../db/client.js';
 import { loginTickets, sessions } from '../db/schema.js';
 
 export async function purgeExpiredAuthRecords() {
   const now = new Date();
   await getDb().transaction(async tx => {
+    await tx.execute(sql`SET LOCAL lock_timeout = '200ms'`);
+    await tx.execute(sql`SET LOCAL statement_timeout = '1s'`);
     await tx.delete(loginTickets).where(lte(loginTickets.expiresAt, now));
     await tx.delete(sessions).where(lte(sessions.expiresAt, now));
   });

@@ -32,4 +32,6 @@ jobs:
               const match = pr.head.ref.match(/^(feat|fix|chore|docs|refactor|test|ci)\/(\d+)-[a-z0-9-]+$/);
               if (!match) throw new Error('Use type/issue-number-description for work branches.');
               if (!new RegExp('(?:closes|fixes|resolves)\\s+#' + match[2] + '\\b', 'i').test(body)) throw new Error('Link the branch issue using Closes #number.');
+              const { data: issue } = await github.rest.issues.get({...context.repo, issue_number: Number(match[2])});
+              if (issue.pull_request) throw new Error('The linked number must be an issue, not a pull request.');
             }
