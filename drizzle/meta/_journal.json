@@ -1,0 +1,34 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1795256786694,
+      "tag": "0000_enable-postgis",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1795256813541,
+      "tag": "0001_initial-schema",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1795256933190,
+      "tag": "0002_login-tickets",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1795273089882,
+      "tag": "0003_bind-login-ticket",
+      "breakpoints": true
+    }
+  ]
+}

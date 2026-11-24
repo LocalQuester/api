@@ -4,6 +4,7 @@ on:
   push:
     branches: [develop, main]
   pull_request:
+    types: [opened, synchronize, reopened, edited]
   workflow_dispatch:
 
 permissions:
@@ -12,6 +13,20 @@ permissions:
 jobs:
   checks:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgis/postgis:17-3.7
+        env:
+          POSTGRES_USER: localquester
+          POSTGRES_PASSWORD: localquester
+          POSTGRES_DB: localquester
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U localquester -d localquester"
+          --health-interval 10s --health-timeout 5s --health-retries 5
+    env:
+      DATABASE_URL: postgres://localquester:localquester@localhost:5432/localquester
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -28,3 +43,6 @@ jobs:
           npm run typecheck
           npm test
           npm run build
+          npm run db:check
+          npm run db:migrate
+          npm run db:verify
