@@ -10,6 +10,10 @@
 - 이슈 자체는 특정 브랜치에 속하지 않습니다.
 - main 병합 전 develop의 검증 완료 여부와 포함 커밋을 확인합니다.
 - 자동 배포 및 이미지 발행은 main 기준으로 유지합니다.
+- 일반 작업 PR은 develop에 Squash and merge로 병합합니다.
+- develop에서 main으로 보내는 배포 PR은 Create a merge commit으로 병합합니다. Squash나 rebase는 사용하지 않습니다.
+- develop은 선형 이력을 유지하며 squash만 허용합니다. main은 배포 커밋의 이력을 보존하기 위해 merge commit만 허용합니다.
+- main에는 develop의 검증된 변경만 병합하므로 정상적인 배포 후 main을 develop에 다시 병합할 필요는 없습니다. 다음 작업은 기존 develop에서 이어갑니다.
 - 일반 작업 PR 본문은 브랜치와 같은 이슈 번호의 Closes #번호를 포함해야 합니다.
 - main은 기본 브랜치가 아니므로 릴리즈 PR의 Closes 키워드만으로 배포 이슈가 자동 종료되지 않을 수 있습니다. 배포 결과를 확인한 뒤 담당자가 배포 이슈를 닫습니다.
 - 커밋 설명은 한국어로 작성하되 타입과 기술 용어는 영어를 사용할 수 있습니다. 예: fix: OAuth 콜백 검증 오류 수정
