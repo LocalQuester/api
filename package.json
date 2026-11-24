@@ -7,16 +7,18 @@
     "node": "^22.13.0 || >=24"
   },
   "scripts": {
-    "dev": "tsx watch src/server.ts",
+    "dev": "node --env-file-if-exists=.env --import tsx --watch src/server.ts",
     "build": "tsc -p tsconfig.build.json",
-    "start": "node dist/server.js",
+    "start": "node --env-file-if-exists=.env dist/server.js",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "tsx --test test/*.test.ts",
-    "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate",
-    "db:check": "drizzle-kit check",
-    "db:verify": "tsx test/migration.verify.ts && tsx test/auth-db.verify.ts"
+    "db:generate": "node --env-file-if-exists=.env node_modules/drizzle-kit/bin.cjs generate",
+    "db:migrate": "node --env-file-if-exists=.env node_modules/drizzle-kit/bin.cjs migrate",
+    "db:check": "node --env-file-if-exists=.env node_modules/drizzle-kit/bin.cjs check",
+    "db:verify": "node --env-file-if-exists=.env --import tsx test/migration.verify.ts && node --env-file-if-exists=.env --import tsx test/auth-db.verify.ts",
+    "db:up": "docker compose up --wait postgres",
+    "db:stop": "docker compose stop postgres"
   },
   "dependencies": {
     "@fastify/cookie": "^11.1.5",
