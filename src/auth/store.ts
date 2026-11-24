@@ -3,6 +3,7 @@ import { and, eq, gt } from 'drizzle-orm';
 import { getDb } from '../db/client.js';
 import { identities, loginTickets, sessions, users } from '../db/schema.js';
 import type { Profile, Provider } from './providers.js';
+import { maintainAuthRecords } from './cleanup.js';
 
 export function randomToken() { return randomBytes(32).toString('base64url'); }
 export function hashToken(token: string) { return createHash('sha256').update(token).digest('hex'); }
@@ -21,6 +22,7 @@ export async function findOrCreateUser(provider: Provider, profile: Profile) {
 }
 
 export async function createLoginTicket(userId: string, challenge: string) {
+  await maintainAuthRecords();
   const token = randomToken();
   await getDb().insert(loginTickets).values({
     userId, challenge, tokenHash: hashToken(token), expiresAt: new Date(Date.now() + 60_000),
@@ -29,6 +31,7 @@ export async function createLoginTicket(userId: string, challenge: string) {
 }
 
 export async function exchangeLoginTicket(ticket: string, verifier: string) {
+  await maintainAuthRecords();
   const db = getDb();
   return db.transaction(async (tx) => {
     const consumed = await tx.delete(loginTickets)
@@ -43,6 +46,7 @@ export async function exchangeLoginTicket(ticket: string, verifier: string) {
 }
 
 export async function getSessionUser(token: string) {
+  await maintainAuthRecords();
   const rows = await getDb().select({ id: users.id, displayName: users.displayName, avatarUrl: users.avatarUrl })
     .from(sessions).innerJoin(users, eq(sessions.userId, users.id))
     .where(and(eq(sessions.tokenHash, hashToken(token)), gt(sessions.expiresAt, new Date()))).limit(1);
@@ -50,5 +54,6 @@ export async function getSessionUser(token: string) {
 }
 
 export async function deleteSession(token: string) {
+  await maintainAuthRecords();
   await getDb().delete(sessions).where(eq(sessions.tokenHash, hashToken(token)));
 }

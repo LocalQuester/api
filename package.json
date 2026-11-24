@@ -16,7 +16,7 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:check": "drizzle-kit check",
-    "db:verify": "tsx test/migration.verify.ts"
+    "db:verify": "tsx test/migration.verify.ts && tsx test/auth-db.verify.ts"
   },
   "dependencies": {
     "@fastify/cookie": "^11.1.5",

@@ -12,8 +12,12 @@ try {
   assert.equal(tables.rowCount, 5);
   const point = await client.query("SELECT ST_SRID(ST_GeomFromText('POINT(127 37)', 4326)) AS srid");
   assert.equal(point.rows[0].srid, 4326);
-  const column = await client.query("SELECT postgis_typmod_srid(a.atttypmod) AS srid FROM pg_attribute a JOIN pg_class c ON a.attrelid = c.oid WHERE c.relname = 'places' AND a.attname = 'location'");
+  const column = await client.query("SELECT postgis_typmod_srid(atttypmod) AS srid FROM pg_attribute WHERE attrelid = 'public.places'::regclass AND attname = 'location' AND NOT attisdropped");
+  assert.equal(column.rowCount, 1, 'public.places.location must exist exactly once');
   assert.equal(column.rows[0].srid, 4326);
+  const spatialIndex = await client.query("SELECT indexdef FROM pg_indexes WHERE schemaname = 'public' AND tablename = 'places' AND indexname = 'places_location_gist_idx'");
+  assert.equal(spatialIndex.rowCount, 1, 'places.location GiST index must exist');
+  assert.match(spatialIndex.rows[0].indexdef, /USING gist\s*\(location\)/i);
   console.log('PostGIS and versioned schema verified');
 } finally {
   await client.end();

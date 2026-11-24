@@ -30,3 +30,5 @@ PostGIS 확장은 `drizzle/0000_enable-postgis.sql`에서 활성화합니다. `p
 ## 검증
 
 `npm run lint`, `npm run typecheck`, `npm test`, `npm run build`, `npm run db:check`를 사용합니다. GitHub Actions는 PostGIS 서비스 DB에 모든 마이그레이션을 적용하고 공간 컬럼까지 확인합니다.
+
+인증 요청이 들어오면 만료된 로그인 티켓과 세션을 정리합니다. 정리는 프로세스당 최대 1분에 한 번 실행되며, 유효한 기록과 사용자 정보는 유지합니다. 정리 실패는 기록하고 다음 요청에서 재시도합니다.
