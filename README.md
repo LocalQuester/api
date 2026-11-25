@@ -58,6 +58,10 @@ Windows에서 다른 프로젝트 때문에 전역 Node 버전을 유지해야 �
 
 확정된 가입 정책과 미확정 정책은 [인증과 온보딩 연동 문서](docs/auth-onboarding-plan.md)에 구분합니다.
 
+## 닉네임 API
+
+인증된 사용자의 중복 확인 경로는 `GET /members/nickname/availability?nickname=minju`입니다. 검증 규칙과 응답 형식은 [닉네임 API 문서](docs/nickname-api.md)를 참고합니다.
+
 ## DB 변경
 
 1. `src/db/schema.ts`를 수정합니다.

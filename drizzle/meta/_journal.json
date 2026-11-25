@@ -29,6 +29,13 @@
       "when": 1795273089882,
       "tag": "0003_bind-login-ticket",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1795456028944,
+      "tag": "0004_nickname-policy",
+      "breakpoints": true
     }
   ]
 }

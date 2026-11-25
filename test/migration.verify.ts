@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { randomBytes } from 'node:crypto';
 import { Client } from 'pg';
 
 if (!process.env.DATABASE_URL) throw new Error('DATABASE_URL is required');
@@ -18,7 +19,14 @@ try {
   const spatialIndex = await client.query("SELECT indexdef FROM pg_indexes WHERE schemaname = 'public' AND tablename = 'places' AND indexname = 'places_location_gist_idx'");
   assert.equal(spatialIndex.rowCount, 1, 'places.location GiST index must exist');
   assert.match(spatialIndex.rows[0].indexdef, /USING gist\s*\(location\)/i);
-  console.log('PostGIS and versioned schema verified');
+  const nickname = `n${randomBytes(4).toString('hex')}`;
+  await client.query('BEGIN');
+  try {
+    await client.query('INSERT INTO users (nickname) VALUES (NULL), (NULL), ($1)', [nickname]);
+    await assert.rejects(client.query('INSERT INTO users (nickname) VALUES ($1)', [nickname]),
+      error => error instanceof Error && 'code' in error && error.code === '23505');
+  } finally { await client.query('ROLLBACK'); }
+  console.log('PostGIS, versioned schema and nickname uniqueness verified');
 } finally {
   await client.end();
 }
