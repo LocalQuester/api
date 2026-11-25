@@ -16,7 +16,7 @@
     "db:generate": "node --env-file-if-exists=.env node_modules/drizzle-kit/bin.cjs generate",
     "db:migrate": "node --env-file-if-exists=.env node_modules/drizzle-kit/bin.cjs migrate",
     "db:check": "node --env-file-if-exists=.env node_modules/drizzle-kit/bin.cjs check",
-    "db:verify": "node --env-file-if-exists=.env --import tsx test/migration.verify.ts && node --env-file-if-exists=.env --import tsx test/auth-db.verify.ts",
+    "db:verify": "node --env-file-if-exists=.env --import tsx test/migration.verify.ts && node --env-file-if-exists=.env --import tsx test/auth-db.verify.ts && node --env-file-if-exists=.env --import tsx test/nickname-db.verify.ts",
     "db:up": "docker compose up --wait postgres",
     "db:stop": "docker compose stop postgres"
   },

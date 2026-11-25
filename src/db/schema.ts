@@ -3,10 +3,11 @@ import { index, pgTable, text, timestamp, uuid, uniqueIndex, geometry } from 'dr
 export const users = pgTable('users', {
   id: uuid('id').defaultRandom().primaryKey(),
   displayName: text('display_name'),
+  nickname: text('nickname'),
   avatarUrl: text('avatar_url'),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
-});
+}, (table) => [uniqueIndex('users_nickname_unique').on(table.nickname)]);
 
 export const identities = pgTable('identities', {
   id: uuid('id').defaultRandom().primaryKey(),
