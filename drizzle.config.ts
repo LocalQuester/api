@@ -5,6 +5,6 @@ export default defineConfig({
   out: './drizzle',
   dialect: 'postgresql',
   dbCredentials: {
-    url: process.env.DATABASE_URL ?? 'postgres://localquester:localquester@localhost:5432/localquester',
+    url: process.env.DATABASE_URL ?? 'postgres://localquester:localquester@127.0.0.1:5433/localquester',
   },
 });

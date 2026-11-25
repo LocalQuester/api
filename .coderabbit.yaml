@@ -1,0 +1,8 @@
+language: ko-KR
+reviews:
+  poem: false
+  high_level_summary: true
+  auto_review:
+    base_branches:
+      - develop
+      - main
